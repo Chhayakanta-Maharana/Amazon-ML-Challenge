@@ -1,263 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Amazon ML Challenge 2026 - Arcade - Technical Report</title>
-<style>
-  @page {
-    size: A4;
-    margin: 10mm 12mm;
-  }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: #111827;
-    line-height: 1.25;
-    font-size: 8.5pt;
-    margin: 0;
-    padding: 0;
-  }
-  .header-box {
-    border-bottom: 2px solid #1e3a8a;
-    padding-bottom: 4px;
-    margin-bottom: 6px;
-  }
-  .title-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-  }
-  h1 {
-    font-size: 13pt;
-    color: #0f172a;
-    margin: 0;
-    text-transform: uppercase;
-    font-weight: 800;
-  }
-  .sub-title {
-    font-size: 9.5pt;
-    font-weight: 700;
-    color: #1e40af;
-    margin: 1px 0;
-  }
-  .meta-grid {
-    font-size: 8pt;
-    color: #374151;
-    margin-top: 2px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px 12px;
-  }
-  .badge {
-    background-color: #dbeafe;
-    color: #1e40af;
-    padding: 1px 5px;
-    border-radius: 3px;
-    font-weight: 700;
-  }
-  h2 {
-    font-size: 9.5pt;
-    color: #1e3a8a;
-    border-bottom: 1px solid #cbd5e1;
-    margin: 5px 0 3px 0;
-    padding-bottom: 1px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  h3 {
-    font-size: 8.5pt;
-    color: #1e293b;
-    margin: 3px 0 1px 0;
-  }
-  p {
-    margin: 0 0 3px 0;
-    text-align: justify;
-  }
-  ul, ol {
-    margin: 0 0 3px 0;
-    padding-left: 14px;
-  }
-  li {
-    margin-bottom: 1.5px;
-  }
-  .flowchart {
-    background: #f8fafc;
-    border: 1px solid #94a3b8;
-    border-radius: 3px;
-    padding: 3px 5px;
-    font-size: 7.5pt;
-    margin: 3px 0;
-    text-align: center;
-    font-weight: 600;
-    color: #0f172a;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 7.5pt;
-    margin: 3px 0;
-  }
-  th, td {
-    padding: 2.5px 4px;
-    border: 1px solid #cbd5e1;
-    text-align: center;
-  }
-  th {
-    background-color: #f1f5f9;
-    font-weight: 700;
-  }
-  .optimal {
-    background-color: #ecfdf5;
-    font-weight: 700;
-    color: #065f46;
-  }
-  .page-break {
-    page-break-after: always;
-  }
-  .stat-callout {
-    background: #f0fdf4;
-    border-left: 3px solid #16a34a;
-    padding: 2px 6px;
-    margin: 3px 0;
-    font-size: 7.8pt;
-  }
-  .refs {
-    font-size: 7pt;
-    line-height: 1.15;
-    color: #475569;
-    margin-top: 2px;
-  }
-  .refs ol {
-    padding-left: 12px;
-    margin: 0;
-  }
-  .refs li {
-    margin-bottom: 1px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Amazon ML Challenge 2026 - Arcade - Technical Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 10mm 12mm;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      color: #111827;
+      line-height: 1.25;
+      font-size: 8.5pt;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header-box {
+      border-bottom: 2px solid #1e3a8a;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+    }
+
+    .title-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    h1 {
+      font-size: 13pt;
+      color: #0f172a;
+      margin: 0;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .sub-title {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: #1e40af;
+      margin: 1px 0;
+    }
+
+    .meta-grid {
+      font-size: 8pt;
+      color: #374151;
+      margin-top: 2px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px 12px;
+    }
+
+    .badge {
+      background-color: #dbeafe;
+      color: #1e40af;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 9.5pt;
+      color: #1e3a8a;
+      border-bottom: 1px solid #cbd5e1;
+      margin: 5px 0 3px 0;
+      padding-bottom: 1px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    h3 {
+      font-size: 8.5pt;
+      color: #1e293b;
+      margin: 3px 0 1px 0;
+    }
+
+    p {
+      margin: 0 0 3px 0;
+      text-align: justify;
+    }
+
+    ul,
+    ol {
+      margin: 0 0 3px 0;
+      padding-left: 14px;
+    }
+
+    li {
+      margin-bottom: 1.5px;
+    }
+
+    .flowchart {
+      background: #f8fafc;
+      border: 1px solid #94a3b8;
+      border-radius: 3px;
+      padding: 3px 5px;
+      font-size: 7.5pt;
+      margin: 3px 0;
+      text-align: center;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 7.5pt;
+      margin: 3px 0;
+    }
+
+    th,
+    td {
+      padding: 2.5px 4px;
+      border: 1px solid #cbd5e1;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .optimal {
+      background-color: #ecfdf5;
+      font-weight: 700;
+      color: #065f46;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
+
+    .stat-callout {
+      background: #f0fdf4;
+      border-left: 3px solid #16a34a;
+      padding: 2px 6px;
+      margin: 3px 0;
+      font-size: 7.8pt;
+    }
+
+    .refs {
+      font-size: 7pt;
+      line-height: 1.15;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .refs ol {
+      padding-left: 12px;
+      margin: 0;
+    }
+
+    .refs li {
+      margin-bottom: 1px;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ==================== PAGE 1 ==================== -->
-<div class="header-box">
-  <div class="title-line">
-    <h1>Amazon ML Challenge 2026</h1>
-    <span class="badge">Validation Macro F<sub>0.5</sub>: 0.9934</span>
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="header-box">
+    <div class="title-line">
+      <h1>Amazon ML Challenge 2026</h1>
+      <span class="badge">Validation Macro F<sub>0.5</sub>: 0.9934</span>
+    </div>
+    <div class="sub-title">Business Entity Resolution Technical Report</div>
+    <div class="meta-grid">
+      <div><strong>Team:</strong> Arcade &nbsp;|&nbsp; <strong>Institution:</strong> Government College of Engineering,
+        Kalahandi</div>
+      <div><strong>Date:</strong> 27 September 2026 &nbsp;|&nbsp; <strong>GitHub:</strong> <a
+          href="https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge"
+          style="color: #1e40af; text-decoration: none;">Chhayakanta-Maharana/Amazon-ML-Challenge</a></div>
+      <div style="grid-column: span 2;"><strong>Team Members:</strong> Mohit Kabi, Debabrata Pradhan, Hari Pangi,
+        Chhayakanta Maharana</div>
+    </div>
   </div>
-  <div class="sub-title">Business Entity Resolution Technical Report</div>
-  <div class="meta-grid">
-    <div><strong>Team:</strong> Arcade &nbsp;|&nbsp; <strong>Institution:</strong> Government College of Engineering, Kalahandi</div>
-    <div><strong>Date:</strong> 26 September 2026 &nbsp;|&nbsp; <strong>GitHub:</strong> <a href="https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge" style="color: #1e40af; text-decoration: none;">Chhayakanta-Maharana/Amazon-ML-Challenge</a></div>
-    <div style="grid-column: span 2;"><strong>Team Members:</strong> Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana</div>
+
+  <h2>1. Executive Summary</h2>
+  <p>
+    We propose a high-throughput, precision-calibrated two-stage pipeline for enterprise-scale multi-source Business
+    Entity Resolution across multilingual records from the United States, India, and an unseen country, France. The
+    system employs a 4-channel hybrid inverted-index blocking mechanism, reducing an initial 17.2 trillion pairwise
+    comparison space by &gt;99.9997% to an average of just ~36.5 candidates per entity (strictly &le;50). These
+    candidates are evaluated using an 8-dimensional non-linear feature extractor and a HistGradientBoosting classifier,
+    with the decision threshold optimized to 0.85 for Macro F<sub>0.5</sub> precision-oriented optimization. The
+    pipeline operates 100% offline with zero external APIs/databases. On internal validation, it achieves a
+    <strong>Macro F<sub>0.5</sub> score of 0.9934</strong> (Precision: 99.58%, Recall: 98.40%), processing all 1.73M
+    test entities at ~470 entities/second on CPU.
+  </p>
+
+  <h2>2. Methodology</h2>
+  <h3>2.1 Problem Analysis</h3>
+  <ul>
+    <li><strong>Severe Textual &amp; Suffix Noise:</strong> Extreme variance in legal entity suffixes (<em>Pvt Ltd, LLC,
+        Corp, Inc, SARL, SA</em>), abbreviations, spelling typos, and word-order transpositions (<em>"Apollo
+        Pharmacy"</em> vs <em>"Pharmacy Apollo"</em>).</li>
+    <li><strong>Address Non-Standardization:</strong> High frequency of missing postal codes, colloquial landmark-based
+      Indian addresses, street abbreviations (<em>Rd, St, Blvd</em>), and unstructured unit/suite numbering.</li>
+    <li><strong>Domain Shift (Unseen France):</strong> Training includes US and India, while test introduces France
+      (FR). To avoid out-of-vocabulary degradation, feature extraction relies on language-agnostic mathematical string
+      distances.</li>
+    <li><strong>Metric Asymmetry &amp; Singleton Trap:</strong> Macro F<sub>0.5</sub> weights precision 2&times; over
+      recall. With &gt;68% singletons (0 matches in Source 1), predicting even a single false match gives 0.0 for that
+      entity, demanding high-precision thresholding.</li>
+  </ul>
+
+  <h3>2.2 Solution Strategy &amp; Pipeline Architecture</h3>
+  <div class="flowchart">
+    Raw Inputs (S1, S2, S3) &rarr; Country Normalization &rarr; 4-Channel Inverted Blocking &rarr; 8-Dim Feature Vector
+    &rarr; HistGradientBoosting (&tau;=0.85) &rarr; Validated TSVs
   </div>
-</div>
+  <ul>
+    <li><strong>Country-Partitioned Streaming:</strong> Execution runs per country (US, IN, FR). This isolates
+      comparisons, prevents cross-border false matches, and bounds peak RAM &lt;2.5 GB.</li>
+    <li><strong>Vectorized Mini-Batch Scoring:</strong> Evaluates candidates in 2,000-entity chunks (~60,000 pairs),
+      achieving ~470 entities/second (31&times; speedup over iterative inference).</li>
+    <li><strong>Precision Threshold Tuning (&tau;=0.85):</strong> Raising &tau; from 0.50 to 0.85 suppresses borderline
+      false positives, yields 100% singleton accuracy, and lifts Macro F<sub>0.5</sub> from 0.9854 to 0.9934.</li>
+  </ul>
 
-<h2>1. Executive Summary</h2>
-<p>
-We propose a high-throughput, precision-calibrated two-stage pipeline for enterprise-scale multi-source Business Entity Resolution across multilingual records from the United States, India, and an unseen country, France. The system employs a 4-channel hybrid inverted-index blocking mechanism, reducing an initial 17.2 trillion pairwise comparison space by &gt;99.9997% to an average of just ~36.5 candidates per entity (strictly &le;50). These candidates are evaluated using an 8-dimensional non-linear feature extractor and a HistGradientBoosting classifier, with the decision threshold optimized to 0.85 for Macro F<sub>0.5</sub> precision-oriented optimization. The pipeline operates 100% offline with zero external APIs/databases. On internal validation, it achieves a <strong>Macro F<sub>0.5</sub> score of 0.9934</strong> (Precision: 99.58%, Recall: 98.40%), processing all 1.73M test entities at ~470 entities/second on CPU.
-</p>
-
-<h2>2. Methodology</h2>
-<h3>2.1 Problem Analysis</h3>
-<ul>
-  <li><strong>Severe Textual &amp; Suffix Noise:</strong> Extreme variance in legal entity suffixes (<em>Pvt Ltd, LLC, Corp, Inc, SARL, SA</em>), abbreviations, spelling typos, and word-order transpositions (<em>"Apollo Pharmacy"</em> vs <em>"Pharmacy Apollo"</em>).</li>
-  <li><strong>Address Non-Standardization:</strong> High frequency of missing postal codes, colloquial landmark-based Indian addresses, street abbreviations (<em>Rd, St, Blvd</em>), and unstructured unit/suite numbering.</li>
-  <li><strong>Domain Shift (Unseen France):</strong> Training includes US and India, while test introduces France (FR). To avoid out-of-vocabulary degradation, feature extraction relies on language-agnostic mathematical string distances.</li>
-  <li><strong>Metric Asymmetry &amp; Singleton Trap:</strong> Macro F<sub>0.5</sub> weights precision 2&times; over recall. With &gt;68% singletons (0 matches in Source 1), predicting even a single false match gives 0.0 for that entity, demanding high-precision thresholding.</li>
-</ul>
-
-<h3>2.2 Solution Strategy &amp; Pipeline Architecture</h3>
-<div class="flowchart">
-  Raw Inputs (S1, S2, S3) &rarr; Country Normalization &rarr; 4-Channel Inverted Blocking &rarr; 8-Dim Feature Vector &rarr; HistGradientBoosting (&tau;=0.85) &rarr; Validated TSVs
-</div>
-<ul>
-  <li><strong>Country-Partitioned Streaming:</strong> Execution runs per country (US, IN, FR). This isolates comparisons, prevents cross-border false matches, and bounds peak RAM &lt;2.5 GB.</li>
-  <li><strong>Vectorized Mini-Batch Scoring:</strong> Evaluates candidates in 2,000-entity chunks (~60,000 pairs), achieving ~470 entities/second (31&times; speedup over iterative inference).</li>
-  <li><strong>Precision Threshold Tuning (&tau;=0.85):</strong> Raising &tau; from 0.50 to 0.85 suppresses borderline false positives, yields 100% singleton accuracy, and lifts Macro F<sub>0.5</sub> from 0.9854 to 0.9934.</li>
-</ul>
-
-<h2>3. Candidate Generation (Blocking)</h2>
-<p>
-To reduce 1.73M &times; 9.97M &approx; 17.27 trillion comparisons to &le;50 candidates/entity, we deploy 4 complementary inverted indexing channels:
-</p>
-<ol>
-  <li><strong>5-Character Alphanumeric Prefix:</strong> Normalized name prefix to capture frontal alignment and resist suffix typos.</li>
-  <li><strong>Sorted Non-Stopword Tokens:</strong> Lexicographically sorted tokens ensure word-order invariance (<em>"Cafe Coffee Day"</em> &equiv; <em>"Coffee Day Cafe"</em>).</li>
-  <li><strong>Distinctive Name Token Index:</strong> Inverted index for rare, specific tokens; common tokens appearing in &gt;5,000 records (<em>services, store, solutions</em>) are pruned to prevent fanout explosions.</li>
-  <li><strong>Compound Address-Numeric Key:</strong> Combines building/postal numbers with street tokens to link distinct trade names at identical physical locations.</li>
-</ol>
-<div class="stat-callout">
-  <strong>Blocking Performance:</strong> Generated <strong>63,334,920 candidates</strong> across 1,732,544 test entities (&sim;<strong>36.55 candidates/entity</strong>, strictly &le;50 cap). Union of channels yields &gt;<strong>99.4% candidate recall ceiling</strong> while pruning &gt;99.9997% of comparisons.
-</div>
-
-<div class="page-break"></div>
-
-<!-- ==================== PAGE 2 ==================== -->
-<h2>4. Matching Model &amp; Feature Engineering</h2>
-<h3>4.1 8-Dimensional Dense Feature Vector</h3>
-<ul>
-  <li><strong>Name Similarities:</strong> RapidFuzz Token Sort Ratio (word order), Partial Ratio (substring/acronym containment), Character Levenshtein ratio, Token Jaccard overlap, and Name Length Difference ratio.</li>
-  <li><strong>Address Similarities:</strong> Address Token Set Ratio (handles extra landmark/suite words), Address Partial Substring ratio, and Exact Postal/PIN code match indicator.</li>
-  <li><strong>Exact Matching &amp; Signals:</strong> Exact normalized phone number match flag and multi-channel blocking agreement count.</li>
-</ul>
-
-<h3>4.2 Model Type &amp; Training</h3>
-<ul>
-  <li><strong>Classifier:</strong> <code>HistGradientBoostingClassifier</code> (scikit-learn, 100 trees, <code>learning_rate=0.08</code>, <code>max_depth=7</code>, <code>min_samples_leaf=20</code>, <code>l2_reg=0.1</code>). Parameter count &lt;1M (&lt;1 MB disk size, well within the 8B constraint; BSD/MIT license).</li>
-  <li><strong>Optimal Threshold (&tau; = 0.85):</strong> Determined via grid search over validation set directly optimizing entity-level Macro F<sub>0.5</sub> with singleton penalization.</li>
-</ul>
-
-<h2>5. Results &amp; Error Analysis</h2>
-<p>Evaluated on a 25% held-out stratified validation split (7,500 Source 1 entities with full candidate background pools):</p>
-<table>
-  <thead>
-    <tr>
-      <th>Threshold (&tau;)</th>
-      <th>Macro F<sub>0.5</sub></th>
-      <th>Precision</th>
-      <th>Recall</th>
-      <th>Macro F<sub>1</sub></th>
-      <th>Singleton Acc.</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr><td>0.50</td><td>0.9854</td><td>0.9842</td><td>0.9901</td><td>0.9871</td><td>98.4%</td></tr>
-    <tr><td>0.70</td><td>0.9912</td><td>0.9926</td><td>0.9875</td><td>0.9900</td><td>99.2%</td></tr>
-    <tr class="optimal"><td>0.85 (Optimal)</td><td>0.9934</td><td>0.9958</td><td>0.9840</td><td>0.9899</td><td>100.0%</td></tr>
-    <tr><td>0.90</td><td>0.9901</td><td>0.9968</td><td>0.9650</td><td>0.9806</td><td>100.0%</td></tr>
-  </tbody>
-</table>
-<ul>
-  <li><strong>False Positives (Wrong Merges):</strong> Primarily multi-branch retail chains sharing identical brand names in adjacent postal sectors with missing unit numbers. Resolved via strict 0.85 threshold and postal consistency.</li>
-  <li><strong>False Negatives (Missed Links):</strong> Rare corner cases where an unexpanded acronym is combined with an unpopulated or colloquial landmark address with zero shared tokens.</li>
-  <li><strong>Singleton Preservation:</strong> 1,178,637 test entities (68.0%) are singletons. Threshold 0.85 eliminated false merges, securing full 1.0 credit per singleton.</li>
-  <li><strong>Validator Check:</strong> <code>utils/validate_submission.py</code> passed all 1,732,544 rows: <strong>PASS &mdash; no blocking issues found. Safe to submit.</strong></li>
-</ul>
-
-<h2>6. Conclusion &amp; Compliance</h2>
-<p>
-Our solution pairs multi-key candidate blocking with language-agnostic fuzzy string features and precision-calibrated gradient boosting. It runs 100% offline without external APIs/databases, satisfies the &le;50 candidate limit (~36.55 achieved), and delivers a validation Macro F<sub>0.5</sub> score of <strong>0.9934</strong> across 1.73M entities.
-</p>
-
-<h2>7. Code Artefacts &amp; Runtime</h2>
-<div style="font-size: 7.5pt; font-family: monospace; background: #f8fafc; border: 1px solid #cbd5e1; padding: 2px 4px; border-radius: 3px;">
-  code/business_entity_resolution/src/ [config, preprocessing, blocking, features, model, train_pipeline, run_inference, evaluation]
-</div>
-<p style="font-size: 7.5pt; margin-top: 2px;">
-<strong>Reproduction:</strong> <code>pip install -r requirements.txt</code> &rarr; <code>python src/train_pipeline.py</code> &rarr; <code>python src/run_inference.py</code><br>
-<strong>Hardware Profile:</strong> Train: ~65s | Inference: ~470 entities/s | Peak RAM: &lt;2.5 GB | Model: 570 KB
-</p>
-
-<h2>References</h2>
-<div class="refs">
+  <h2>3. Candidate Generation (Blocking)</h2>
+  <p>
+    To reduce 1.73M &times; 9.97M &approx; 17.27 trillion comparisons to &le;50 candidates/entity, we deploy 4
+    complementary inverted indexing channels:
+  </p>
   <ol>
-    <li>P. Christen. <em>Data Matching: Concepts and Techniques for Record Linkage, Entity Resolution, and Duplicate Detection</em>. Springer, 2012.</li>
-    <li>I. P. Fellegi and A. B. Sunter. "A Theory for Record Linkage." <em>JASA</em>, 64(328):1183–1210, 1969.</li>
-    <li>G. Ke et al. "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." <em>NeurIPS 30</em>, 2017.</li>
-    <li>F. Pedregosa et al. "Scikit-learn: Machine Learning in Python." <em>JMLR</em>, 12:2825–2830, 2011.</li>
-    <li>G. Navarro. "A Guided Tour to Approximate String Matching." <em>ACM CSUR</em>, 33(1):31–88, 2001.</li>
-    <li>C. J. van Rijsbergen. <em>Information Retrieval</em>. Butterworth-Heinemann, 2nd Edition, 1979.</li>
+    <li><strong>5-Character Alphanumeric Prefix:</strong> Normalized name prefix to capture frontal alignment and resist
+      suffix typos.</li>
+    <li><strong>Sorted Non-Stopword Tokens:</strong> Lexicographically sorted tokens ensure word-order invariance
+      (<em>"Cafe Coffee Day"</em> &equiv; <em>"Coffee Day Cafe"</em>).</li>
+    <li><strong>Distinctive Name Token Index:</strong> Inverted index for rare, specific tokens; common tokens appearing
+      in &gt;5,000 records (<em>services, store, solutions</em>) are pruned to prevent fanout explosions.</li>
+    <li><strong>Compound Address-Numeric Key:</strong> Combines building/postal numbers with street tokens to link
+      distinct trade names at identical physical locations.</li>
   </ol>
-</div>
+  <div class="stat-callout">
+    <strong>Blocking Performance:</strong> Generated <strong>63,334,920 candidates</strong> across 1,732,544 test
+    entities (&sim;<strong>36.55 candidates/entity</strong>, strictly &le;50 cap). Union of channels yields
+    &gt;<strong>99.4% candidate recall ceiling</strong> while pruning &gt;99.9997% of comparisons.
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <h2>4. Matching Model &amp; Feature Engineering</h2>
+  <h3>4.1 8-Dimensional Dense Feature Vector</h3>
+  <ul>
+    <li><strong>Name Similarities:</strong> RapidFuzz Token Sort Ratio (word order), Partial Ratio (substring/acronym
+      containment), Character Levenshtein ratio, Token Jaccard overlap, and Name Length Difference ratio.</li>
+    <li><strong>Address Similarities:</strong> Address Token Set Ratio (handles extra landmark/suite words), Address
+      Partial Substring ratio, and Exact Postal/PIN code match indicator.</li>
+    <li><strong>Exact Matching &amp; Signals:</strong> Exact normalized phone number match flag and multi-channel
+      blocking agreement count.</li>
+  </ul>
+
+  <h3>4.2 Model Type &amp; Training</h3>
+  <ul>
+    <li><strong>Classifier:</strong> <code>HistGradientBoostingClassifier</code> (scikit-learn, 100 trees,
+      <code>learning_rate=0.08</code>, <code>max_depth=7</code>, <code>min_samples_leaf=20</code>,
+      <code>l2_reg=0.1</code>). Parameter count &lt;1M (&lt;1 MB disk size, well within the 8B constraint; BSD/MIT
+      license).</li>
+    <li><strong>Optimal Threshold (&tau; = 0.85):</strong> Determined via grid search over validation set directly
+      optimizing entity-level Macro F<sub>0.5</sub> with singleton penalization.</li>
+  </ul>
+
+  <h2>5. Results &amp; Error Analysis</h2>
+  <p>Evaluated on a 25% held-out stratified validation split (7,500 Source 1 entities with full candidate background
+    pools):</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Threshold (&tau;)</th>
+        <th>Macro F<sub>0.5</sub></th>
+        <th>Precision</th>
+        <th>Recall</th>
+        <th>Macro F<sub>1</sub></th>
+        <th>Singleton Acc.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0.50</td>
+        <td>0.9854</td>
+        <td>0.9842</td>
+        <td>0.9901</td>
+        <td>0.9871</td>
+        <td>98.4%</td>
+      </tr>
+      <tr>
+        <td>0.70</td>
+        <td>0.9912</td>
+        <td>0.9926</td>
+        <td>0.9875</td>
+        <td>0.9900</td>
+        <td>99.2%</td>
+      </tr>
+      <tr class="optimal">
+        <td>0.85 (Optimal)</td>
+        <td>0.9934</td>
+        <td>0.9958</td>
+        <td>0.9840</td>
+        <td>0.9899</td>
+        <td>100.0%</td>
+      </tr>
+      <tr>
+        <td>0.90</td>
+        <td>0.9901</td>
+        <td>0.9968</td>
+        <td>0.9650</td>
+        <td>0.9806</td>
+        <td>100.0%</td>
+      </tr>
+    </tbody>
+  </table>
+  <ul>
+    <li><strong>False Positives (Wrong Merges):</strong> Primarily multi-branch retail chains sharing identical brand
+      names in adjacent postal sectors with missing unit numbers. Resolved via strict 0.85 threshold and postal
+      consistency.</li>
+    <li><strong>False Negatives (Missed Links):</strong> Rare corner cases where an unexpanded acronym is combined with
+      an unpopulated or colloquial landmark address with zero shared tokens.</li>
+    <li><strong>Singleton Preservation:</strong> 1,178,637 test entities (68.0%) are singletons. Threshold 0.85
+      eliminated false merges, securing full 1.0 credit per singleton.</li>
+    <li><strong>Validator Check:</strong> <code>utils/validate_submission.py</code> passed all 1,732,544 rows:
+      <strong>PASS &mdash; no blocking issues found. Safe to submit.</strong></li>
+  </ul>
+
+  <h2>6. Conclusion &amp; Compliance</h2>
+  <p>
+    Our solution pairs multi-key candidate blocking with language-agnostic fuzzy string features and
+    precision-calibrated gradient boosting. It runs 100% offline without external APIs/databases, satisfies the &le;50
+    candidate limit (~36.55 achieved), and delivers a validation Macro F<sub>0.5</sub> score of <strong>0.9934</strong>
+    across 1.73M entities.
+  </p>
+
+  <h2>7. Code Artefacts &amp; Runtime</h2>
+  <div
+    style="font-size: 7.5pt; font-family: monospace; background: #f8fafc; border: 1px solid #cbd5e1; padding: 2px 4px; border-radius: 3px;">
+    code/business_entity_resolution/src/ [config, preprocessing, blocking, features, model, train_pipeline,
+    run_inference, evaluation]
+  </div>
+  <p style="font-size: 7.5pt; margin-top: 2px;">
+    <strong>Reproduction:</strong> <code>pip install -r requirements.txt</code> &rarr;
+    <code>python src/train_pipeline.py</code> &rarr; <code>python src/run_inference.py</code><br>
+    <strong>Hardware Profile:</strong> Train: ~65s | Inference: ~470 entities/s | Peak RAM: &lt;2.5 GB | Model: 570 KB
+  </p>
+
+  <h2>References</h2>
+  <div class="refs">
+    <ol>
+      <li>P. Christen. <em>Data Matching: Concepts and Techniques for Record Linkage, Entity Resolution, and Duplicate
+          Detection</em>. Springer, 2012.</li>
+      <li>I. P. Fellegi and A. B. Sunter. "A Theory for Record Linkage." <em>JASA</em>, 64(328):1183–1210, 1969.</li>
+      <li>G. Ke et al. "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." <em>NeurIPS 30</em>, 2017.</li>
+      <li>F. Pedregosa et al. "Scikit-learn: Machine Learning in Python." <em>JMLR</em>, 12:2825–2830, 2011.</li>
+      <li>G. Navarro. "A Guided Tour to Approximate String Matching." <em>ACM CSUR</em>, 33(1):31–88, 2001.</li>
+      <li>C. J. van Rijsbergen. <em>Information Retrieval</em>. Butterworth-Heinemann, 2nd Edition, 1979.</li>
+    </ol>
+  </div>
 
 </body>
+
 </html>

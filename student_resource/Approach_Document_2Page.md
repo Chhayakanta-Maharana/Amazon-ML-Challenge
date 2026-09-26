@@ -2,7 +2,7 @@
 
 **Team:** Arcade | **Institution:** Government College of Engineering, Kalahandi  
 **Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana  
-**Date:** 26 September 2026 | **Validation Macro $F_{0.5}$:** **0.9934** | **Candidates:** **~36.5 / entity**  
+**Date:** 27 September 2026 | **Validation Macro $F_{0.5}$:** **0.9934** | **Candidates:** **~36.5 / entity**  
 **GitHub Repository:** [https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge](https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge)
 
 ---
