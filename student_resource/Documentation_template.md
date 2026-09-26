@@ -4,7 +4,8 @@
 **Institution:** Government College of Engineering, Kalahandi  
 **Technical Report:** Business Entity Resolution Solution Template  
 **Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana  
-**Date:** 13 October 2025  
+**Date:** 26 September 2026  
+**GitHub Repository:** [https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge](https://github.com/Chhayakanta-Maharana/Amazon-ML-Challenge)
 
 ---
 
