@@ -65,78 +65,108 @@ def run_test_inference(sample_size=None):
         c_start = time.time()
         
         # Load S2 and S3 for this country in chunks
-        print(f"Loading Test S2 and S3 records for country: {country}...")
+        print(f"Loading Test S2 and S3 records for country: {country}...", flush=True)
         s2_chunks = []
-        for chunk in pd.read_csv(Config.TEST_S2, sep="\t", chunksize=250000):
-            chunk_filtered = chunk[chunk['country'].apply(clean_country) == country]
-            if len(chunk_filtered) > 0:
-                s2_chunks.append(chunk_filtered)
+        for chunk in pd.read_csv(Config.TEST_S2, sep="\t", chunksize=500000):
+            mask = chunk['country'].astype(str).str.strip().str.upper() == country
+            sub = chunk[mask]
+            if len(sub) > 0:
+                s2_chunks.append(sub)
                 
         s3_chunks = []
-        for chunk in pd.read_csv(Config.TEST_S3, sep="\t", chunksize=250000):
-            chunk_filtered = chunk[chunk['country'].apply(clean_country) == country]
-            if len(chunk_filtered) > 0:
-                s3_chunks.append(chunk_filtered)
+        for chunk in pd.read_csv(Config.TEST_S3, sep="\t", chunksize=500000):
+            mask = chunk['country'].astype(str).str.strip().str.upper() == country
+            sub = chunk[mask]
+            if len(sub) > 0:
+                s3_chunks.append(sub)
                 
         target_records = pd.concat(s2_chunks + s3_chunks, ignore_index=True)
-        print(f"Loaded {len(target_records):,} target records (S2 + S3) for [{country}].")
+        print(f"Loaded {len(target_records):,} target records (S2 + S3) for [{country}].", flush=True)
+        
+        s1_ids = s1_group['entity_id'].values
+        s1_names = s1_group['business_name'].values
+        s1_addrs = s1_group['business_address'].values
+        total_records = len(s1_ids)
+
+        # Extract S1 query keys to strictly index only relevant target records
+        print("Extracting query blocking keys from Source 1 entities...", flush=True)
+        s1_query_keys = Blocker.extract_blocking_keys_from_records(s1_names, s1_addrs)
+        print(f"Extracted {len(s1_query_keys['prefix']):,} prefixes, {len(s1_query_keys['sorted']):,} sorted pairs, {len(s1_query_keys['token']):,} tokens, {len(s1_query_keys['addr']):,} address keys.", flush=True)
         
         # Build Blocker index for this country
-        print("Building inverted candidate index...")
+        print("Building inverted candidate index on filtered relevant target records...", flush=True)
         idx_t0 = time.time()
         blocker = Blocker(max_candidates_per_entity=Config.MAX_CANDIDATES_PER_S1)
-        blocker.index_target_records(target_records)
-        print(f"Candidate indexing completed in {time.time() - idx_t0:.2f}s.")
+        blocker.index_target_records(target_records, target_keys=s1_query_keys)
+        print(f"Candidate indexing completed in {time.time() - idx_t0:.2f}s (Indexed {len(blocker.records):,} relevant target records).", flush=True)
         
         target_dict = blocker.records
         
-        # Run S1 candidate generation & scoring
-        print(f"Running candidate generation & model scoring on {len(s1_group):,} S1 records...")
+        print(f"Running candidate generation & model scoring on {len(s1_group):,} S1 records...", flush=True)
         inf_t0 = time.time()
         total_cands = 0
         total_matches = 0
         
-        batch_records = s1_group[['entity_id', 'business_name', 'business_address', 'country']].to_dict(orient='records')
-        
-        for i, s1_rec in enumerate(batch_records):
-            s1_id = s1_rec['entity_id']
-            cands, ch_hits = blocker.generate_candidates_for_entity(
-                s1_id, s1_rec['business_name'], s1_rec['business_address'], country
-            )
+        batch_size = 2000
+        for batch_start in range(0, total_records, batch_size):
+            batch_end = min(batch_start + batch_size, total_records)
+            b_s1_ids = s1_ids[batch_start:batch_end]
+            b_names = s1_names[batch_start:batch_end]
+            b_addrs = s1_addrs[batch_start:batch_end]
             
-            final_candidates_map[s1_id] = cands
-            total_cands += len(cands)
+            all_batch_features = []
+            entity_cand_slices = []
             
-            matched_ids = []
-            if cands:
-                s1_n = clean_name(s1_rec['business_name'])
-                s1_a = clean_address(s1_rec['business_address'])
+            for s1_id, b_name, b_addr in zip(b_s1_ids, b_names, b_addrs):
+                cands, ch_hits = blocker.generate_candidates_for_entity(
+                    s1_id, b_name, b_addr, country
+                )
+                final_candidates_map[s1_id] = cands
+                total_cands += len(cands)
                 
-                cand_features = []
-                valid_cands = []
-                for cand in cands:
-                    if cand in target_dict:
-                        t_c, t_n, t_a = target_dict[cand]
-                        f = extract_pairwise_features(
-                            s1_n, s1_a, country,
-                            t_n, t_a, t_c,
-                            channel_count=len(ch_hits[cand])
-                        )
-                        cand_features.append(f)
-                        valid_cands.append(cand)
-                        
-                if cand_features:
-                    probs = model.predict_proba(np.array(cand_features))[:, 1]
-                    matched_ids = [c for c, p in zip(valid_cands, probs) if p >= threshold]
-                    total_matches += len(matched_ids)
+                if cands:
+                    s1_n = clean_name(b_name)
+                    s1_a = clean_address(b_addr)
+                    valid_cands = []
+                    for cand in cands:
+                        if cand in target_dict:
+                            t_c, t_name_raw, t_addr_raw = target_dict[cand]
+                            t_n = clean_name(t_name_raw)
+                            t_a = clean_address(t_addr_raw)
+                            f = extract_pairwise_features(
+                                s1_n, s1_a, country,
+                                t_n, t_a, t_c,
+                                channel_count=len(ch_hits[cand])
+                            )
+                            all_batch_features.append(f)
+                            valid_cands.append(cand)
+                    entity_cand_slices.append((s1_id, valid_cands))
+                else:
+                    final_matches_map[s1_id] = []
                     
-            final_matches_map[s1_id] = matched_ids
-            
-            if (i + 1) % 25000 == 0 or (i + 1) == len(batch_records):
-                print(f"  Processed {i + 1:,}/{len(batch_records):,} ({((i + 1)/len(batch_records))*100:.1f}%) | Matches found so far: {total_matches:,}")
+            if all_batch_features:
+                probs = model.predict_proba(np.array(all_batch_features))[:, 1]
+                idx = 0
+                for s1_id, valid_cands in entity_cand_slices:
+                    n_c = len(valid_cands)
+                    if n_c > 0:
+                        cand_probs = probs[idx:idx + n_c]
+                        matched_ids = [c for c, p in zip(valid_cands, cand_probs) if p >= threshold]
+                        final_matches_map[s1_id] = matched_ids
+                        total_matches += len(matched_ids)
+                        idx += n_c
+                    else:
+                        final_matches_map[s1_id] = []
+            else:
+                for s1_id, valid_cands in entity_cand_slices:
+                    final_matches_map[s1_id] = []
+                    
+            curr_processed = batch_end
+            if curr_processed % 10000 == 0 or curr_processed == total_records or curr_processed == batch_size:
+                print(f"  Processed {curr_processed:,}/{total_records:,} ({((curr_processed)/total_records)*100:.1f}%) | Matches: {total_matches:,} | Speed: {curr_processed/(time.time()-inf_t0):.1f} ent/s", flush=True)
                 
-        print(f"Partition [{country}] completed in {time.time() - c_start:.2f}s.")
-        print(f"Candidates generated: {total_cands:,} | Final matches: {total_matches:,}")
+        print(f"Partition [{country}] completed in {time.time() - c_start:.2f}s.", flush=True)
+        print(f"Candidates generated: {total_cands:,} | Final matches: {total_matches:,}", flush=True)
         
         # Free memory
         del target_records, blocker, target_dict, s2_chunks, s3_chunks

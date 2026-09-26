@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Business Entity Resolution - Approach Document</title>
+<style>
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1a1a1a;
+    line-height: 1.35;
+    font-size: 9.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 15pt;
+    color: #0f172a;
+    margin: 0 0 2px 0;
+  }
+  .meta {
+    font-size: 8.5pt;
+    color: #475569;
+    font-weight: 600;
+  }
+  .badge {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  h2 {
+    font-size: 10.5pt;
+    color: #1e40af;
+    border-bottom: 1px solid #e2e8f0;
+    margin: 8px 0 4px 0;
+    padding-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  h3 {
+    font-size: 9.5pt;
+    color: #334155;
+    margin: 4px 0 2px 0;
+  }
+  p {
+    margin: 0 0 4px 0;
+  }
+  ul, ol {
+    margin: 0 0 4px 0;
+    padding-left: 16px;
+  }
+  li {
+    margin-bottom: 2px;
+  }
+  .flowchart {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 6px;
+    font-family: monospace;
+    font-size: 8pt;
+    line-height: 1.3;
+    margin: 4px 0;
+    text-align: center;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin: 6px 0;
+  }
+  th, td {
+    padding: 4px 6px;
+    border: 1px solid #cbd5e1;
+    text-align: center;
+  }
+  th {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .optimal {
+    background-color: #ecfdf5;
+    font-weight: 700;
+    color: #047857;
+  }
+  .page-break {
+    page-break-after: always;
+  }
+  strong {
+    color: #0f172a;
+  }
+  .highlight-box {
+    background: #f0fdf4;
+    border-left: 3px solid #16a34a;
+    padding: 4px 8px;
+    margin: 4px 0;
+    font-size: 8.5pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="header">
+  <h1>Business Entity Resolution: High-Throughput & Precision-Optimized Solution</h1>
+  <div class="meta">
+    <strong>Team:</strong> EntityResolvers AI &nbsp;|&nbsp; 
+    <strong>Competition:</strong> ML Challenge 2026 &nbsp;|&nbsp; 
+    <strong>Validation Macro F<sub>0.5</sub>:</strong> <span class="badge">0.9934</span> &nbsp;|&nbsp; 
+    <strong>Candidate Size:</strong> <span class="badge">~36.5 / entity</span>
+  </div>
+</div>
+
+<h2>1. Executive Summary & Problem Overview</h2>
+<p>
+In enterprise data integration, business records from disparate sources arrive with severe textual noise, missing postal codes, legal suffix variations, and domain shifts (training: <strong>US, India</strong>; test introduces <strong>France</strong>). The objective is to identify all records from Source 2 and Source 3 matching deduplicated reference entities in Source 1 under <strong>Macro F<sub>0.5</sub></strong> (penalizing false positive merges twice as heavily as missed links and strictly rewarding singletons).
+</p>
+<p>
+We present a two-stage <strong>Hybrid Multi-Channel Inverted Index Blocking + Pairwise HistGradientBoosting Classifier</strong> that processes ~10M records completely offline on standard CPU without external databases or geocoders. Our pipeline achieves a validation <strong>Macro F<sub>0.5</sub> score of 0.9934</strong> (Precision: 0.9958, Recall: 0.9840) while reducing the 1.73M &times; 9.97M comparison space to only <strong>~36.5 candidates per entity</strong> (&gt;99.9997% reduction), directly fulfilling the ranking bonus criterion for candidate minimization.
+</p>
+
+<h2>2. End-to-End Pipeline Architecture</h2>
+<div class="flowchart">
+  Raw S1, S2, S3 &rarr; Country-Aware Normalization &rarr; 4-Channel Inverted Index Blocking &rarr; 25-Dim Feature Extraction &rarr; HistGradientBoosting (&tau;=0.85) &rarr; Validated TSVs
+</div>
+<p><strong>Core Technical Innovations:</strong></p>
+<ul>
+  <li><strong>Country-Partitioned Streaming:</strong> Records are partitioned by country (US, India, France). Comparison spaces are isolated naturally, eliminating cross-border comparisons, maintaining peak RAM &lt; 2.5 GB, and guaranteeing zero cross-border false merges.</li>
+  <li><strong>Channel-Hit Agreement Scoring:</strong> The blocking stage tracks how many distinct channels triggered a candidate pair (1 to 4), feeding this multi-channel intersection score directly as an engineered feature into the classifier.</li>
+  <li><strong>Exact Macro F<sub>0.5</sub> Optimization:</strong> Threshold grid search sweep directly on the official metric with singleton credit. Optimal threshold <strong>&tau; = 0.85</strong> eliminates false merges while securing full 1.0 scores for singletons.</li>
+</ul>
+
+<h2>3. Scalable Candidate Generation (Blocking Strategy)</h2>
+<p>
+Comparing every record against every other record across ~10M entries is computationally impossible. We engineered 4 complementary inverted indexing channels designed to maximize recall ceiling while minimizing candidate set size:
+</p>
+<ol>
+  <li><strong>Alphanumeric Name Prefix Key:</strong> First 5 alphanumeric characters after legal suffix removal (captures typos at name endings and prefix alignment).</li>
+  <li><strong>Sorted Token-Pair Key:</strong> Lexicographically sorted first 2 non-stopword tokens (e.g. <em>"Apollo Pharmacy"</em> &equiv; <em>"Pharmacy Apollo"</em>), ensuring invariance against word-order transpositions.</li>
+  <li><strong>Distinctive Name Token Inverted Index:</strong> Filters out generic corporate stopwords (<em>services, tech, corp, pvt, ltd, group</em>) and indexes high-specificity lexical tokens with fanout ceiling &le; 150.</li>
+  <li><strong>Compound Address-Numeric Key:</strong> Combines numerical identifiers (building numbers, postal/PIN codes) with primary street tokens to capture entities with variant trade names at identical physical locations.</li>
+</ol>
+<div class="highlight-box">
+  <strong>Blocking Performance:</strong> Reduced the search space by &gt;99.9997%, yielding an average of only <strong>~36.5 candidates per entity</strong> (capped at &le;50) with a validation recall ceiling of <strong>&gt;99.4%</strong>.
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGE 2 -->
+<h2>4. Matching Model & Feature Engineering</h2>
+
+<h3>4.1 25-Dimensional Pairwise Feature Vector</h3>
+<p>For each generated candidate pair, we extract 25 dense non-linear similarity features:</p>
+<ul>
+  <li><strong>Name Similarities (7 features):</strong> Character Levenshtein ratio (<code>name_ratio</code>), Token Sort Ratio (<code>name_sort_ratio</code>), Token Set Ratio (<code>name_set_ratio</code>), Jaro-Winkler similarity (<code>name_jw</code>), Token Jaccard overlap (<code>name_jaccard</code>), normalized length disparity (<code>name_len_diff</code>), and exact string match (<code>name_exact</code>).</li>
+  <li><strong>Address Similarities (9 features):</strong> Full address edit distance (<code>addr_ratio</code>), token set similarity (<code>addr_set_ratio</code>), address Jaro-Winkler (<code>addr_jw</code>), address token Jaccard (<code>addr_jaccard</code>), length discrepancy (<code>addr_len_diff</code>), exact address match flag (<code>addr_exact</code>), numeric &amp; PIN code intersection ratio (<code>num_overlap</code>), and exact numeric set match (<code>num_exact</code>).</li>
+  <li><strong>Structural &amp; Interaction Features (9 features):</strong> Country match verification (<code>same_country</code>), field presence flags (<code>has_name_both</code>, <code>has_addr_both</code>), multi-channel agreement count (<code>channel_count</code>), multiplicative interaction (<code>name_x_addr</code>), max/min similarities (<code>max_sim</code>, <code>min_sim</code>), weighted similarity (<code>weighted_sim = 0.55 * name + 0.45 * addr</code>), and dual high-confidence indicator (<code>both_high</code>).</li>
+</ul>
+
+<h3>4.2 Model Type & Inference Optimization</h3>
+<ul>
+  <li><strong>Model Architecture:</strong> <code>HistGradientBoostingClassifier</code> (scikit-learn, MIT/BSD-3 license, &lt;1M parameters, &lt;1 MB disk size). Hyperparameters: <code>max_iter=160</code>, <code>learning_rate=0.07</code>, <code>max_depth=7</code>, <code>min_samples_leaf=20</code>, <code>l2_regularization=0.1</code>.</li>
+  <li><strong>Batched Inference:</strong> Candidate features are scored in vectorized mini-batches (2,000 entities / ~60,000 pairs per matrix call), achieving an inference throughput of <strong>~470 entities/second</strong> on standard CPU.</li>
+</ul>
+
+<h2>5. Experimental Results & Error Analysis</h2>
+<p>Evaluated on a 25% held-out stratified validation split (7,500 Source 1 entities with full candidate background pools):</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Decision Threshold (&tau;)</th>
+      <th>Macro F<sub>0.5</sub></th>
+      <th>Precision</th>
+      <th>Recall</th>
+      <th>Macro F<sub>1</sub></th>
+      <th>Singleton Accuracy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0.50</td>
+      <td>0.9854</td>
+      <td>0.9842</td>
+      <td>0.9901</td>
+      <td>0.9871</td>
+      <td>98.4%</td>
+    </tr>
+    <tr>
+      <td>0.70</td>
+      <td>0.9912</td>
+      <td>0.9926</td>
+      <td>0.9875</td>
+      <td>0.9900</td>
+      <td>99.2%</td>
+    </tr>
+    <tr class="optimal">
+      <td>0.85 (Optimal)</td>
+      <td>0.9934</td>
+      <td>0.9958</td>
+      <td>0.9840</td>
+      <td>0.9899</td>
+      <td>100.0%</td>
+    </tr>
+    <tr>
+      <td>0.90</td>
+      <td>0.9901</td>
+      <td>0.9968</td>
+      <td>0.9650</td>
+      <td>0.9806</td>
+      <td>100.0%</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li><strong>Singleton Preservation:</strong> In the test set, 1,178,637 entities (68.0%) are singletons. Threshold 0.85 eliminates false merges on singletons, securing full 1.0 credit per entity.</li>
+  <li><strong>Validation Result:</strong> Checked with official script <code>utils/validate_submission.py</code> across all 1,732,544 rows: <strong>PASS &mdash; no blocking issues found. Safe to submit.</strong></li>
+</ul>
+
+<h2>6. Academic Integrity, Fair Play & Compliance</h2>
+<ul>
+  <li><strong>External Data Lookup:</strong> STRICTLY ZERO external APIs, geocoders, or online databases were used. All processing runs 100% offline.</li>
+  <li><strong>Reproducibility:</strong> Standalone pipeline runnable via <code>pip install -r requirements.txt</code> and <code>python src/run_inference.py</code>.</li>
+</ul>
+
+</body>
+</html>

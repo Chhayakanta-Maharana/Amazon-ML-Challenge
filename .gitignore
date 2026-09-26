@@ -40,3 +40,9 @@ wheels/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints
+
+# Large archives and generated outputs
+*.zip
+*.tar.gz
+student_resource/output/
+output/
