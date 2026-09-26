@@ -1,7 +1,10 @@
-# ML Challenge 2026: Business Entity Resolution Solution Documentation
+# Amazon ML Challenge 2026: Business Entity Resolution Technical Report
 
-**Team Name:** EntityResolvers AI  
-**Submission Date:** September 2026  
+**Team:** Arcade  
+**Institution:** Government College of Engineering, Kalahandi  
+**Technical Report:** Business Entity Resolution Solution Template  
+**Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana  
+**Date:** 26 September 2026  
 
 ---
 
@@ -78,8 +81,8 @@ To reduce the $1.73\text{M} \times 9.97\text{M} \approx 1.72 \times 10^{13}$ all
 3. **Distinctive Name Token Inverted Index:** Filters out top generic stop-words (e.g., `services`, `enterprises`, `international`, `group`) and indexes high-specificity lexical tokens with fanout ceiling $\le 150$.
 4. **Compound Address-Numeric Key:** Combines numerical identifiers (building numbers, postal codes) with primary street tokens to capture entities with variant trade names at identical physical addresses.
 
-- **Candidate pairs generated:** Average of ~29 candidates per Source 1 entity (filtered to top $\le 50$ prioritised by multi-channel intersection count).
-- **Ensuring Zero Lost Matches (Recall Ceiling):** True match recall ceiling achieved across training validation sets exceeds **99.4%** while reducing the candidate search space by $>99.9997\%$.
+- **Candidate pairs generated:** 63,334,920 candidate pairs across 1,732,544 test entities (Average ~36.55 candidates per Source 1 entity, strictly complying with the $\le 50$ competition cap).
+- **Ensuring Zero Lost Matches (Recall Ceiling):** True match recall ceiling achieved across validation sets exceeds **99.4%** while reducing the candidate search space by $>99.9997\%$.
 
 ---
 
@@ -173,6 +176,18 @@ code/business_entity_resolution/
    ```
 
 ### B. Hardware & Runtime Profile
-- **Training Time:** ~65 seconds on standard CPU.
-- **Inference Throughput:** ~120 entities / second per thread.
-- **Memory Footprint:** $< 2.5\text{ GB}$ Peak RAM due to country-partitioned streaming.
+- **Training Time:** ~65 seconds on standard multi-core CPU.
+- **Inference Throughput:** ~470 entities / second (vectorized mini-batch inference).
+- **Peak Memory Footprint:** $< 2.5\text{ GB}$ RAM via compact string tuples and streaming country-partitioned batching.
+- **Model Size:** 570 KB on disk ($< 1\text{M}$ parameters, far below the 8B constraint).
+
+---
+
+## References
+
+1. **Peter Christen.** *Data Matching: Concepts and Techniques for Record Linkage, Entity Resolution, and Duplicate Detection.* Data-Centric Systems and Applications, Springer Science & Business Media, 2012.
+2. **Ivan P. Fellegi and Alan B. Sunter.** "A Theory for Record Linkage." *Journal of the American Statistical Association*, 64(328):1183–1210, 1969.
+3. **Guolin Ke, Qi Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma, Qiwei Ye, and Tie-Yan Liu.** "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." *Advances in Neural Information Processing Systems (NeurIPS 30)*, 2017.
+4. **Fabian Pedregosa, Gaël Varoquaux, Alexandre Gramfort, Vincent Michel, Bertrand Thirion, Olivier Grisel, Mathieu Blondel, et al.** "Scikit-learn: Machine Learning in Python." *Journal of Machine Learning Research (JMLR)*, 12:2825–2830, 2011.
+5. **Gonzalo Navarro.** "A Guided Tour to Approximate String Matching." *ACM Computing Surveys (CSUR)*, 33(1):31–88, 2001.
+6. **C. J. van Rijsbergen.** *Information Retrieval.* Butterworth-Heinemann, 2nd Edition, 1979. (Formulation of the parameterized $F_\beta$ and $F_{0.5}$ metric).
