@@ -1,7 +1,7 @@
 # Amazon ML Challenge 2026: Business Entity Resolution Technical Report
 
 **Team:** Arcade | **Institution:** Government College of Engineering, Kalahandi  
-**Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pandi, Chhayakanta Maharana  
+**Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana  
 **Date:** 13 October 2025 | **Validation Macro $F_{0.5}$:** **0.9934** | **Candidates:** **~36.5 / entity**
 
 ---

@@ -3,7 +3,7 @@
 **Team:** Arcade  
 **Institution:** Government College of Engineering, Kalahandi  
 **Technical Report:** Business Entity Resolution Solution Template  
-**Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pandi, Chhayakanta Maharana  
+**Team Members:** Mohit Kabi, Debabrata Pradhan, Hari Pangi, Chhayakanta Maharana  
 **Date:** 13 October 2025  
 
 ---
